@@ -1,50 +1,50 @@
 name: Tests
 
 on:
-    push:
-        branches: [main]
-    pull_request:
-        branches: [main]
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
 
 jobs:
-    unit-tests:
-        name: Unit Tests
-        runs-on: ubuntu-latest
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
 
-        steps:
-            - uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
-            - name: Install uv
-              uses: astral-sh/setup-uv@v5
-              with:
-                  enable-cache: true
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
 
-            - name: Set up Python
-              run: uv python install
+      - name: Set up Python
+        run: uv python install
 
-            - name: Install dependencies
-              run: uv sync
+      - name: Install dependencies
+        run: uv sync
 
-            - name: Run unit tests
-              run: PYTHONPATH=. uv run pytest tests/test_server.py -v
+      - name: Run unit tests
+        run: PYTHONPATH=. uv run pytest tests/test_server.py -v
 
-    integration-tests:
-        name: Integration Tests
-        runs-on: ubuntu-latest
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
 
-        steps:
-            - uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
-            - name: Install uv
-              uses: astral-sh/setup-uv@v5
-              with:
-                  enable-cache: true
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
 
-            - name: Set up Python
-              run: uv python install
+      - name: Set up Python
+        run: uv python install
 
-            - name: Install dependencies
-              run: uv sync
+      - name: Install dependencies
+        run: uv sync
 
-            - name: Run integration tests
-              run: PYTHONPATH=. uv run python tests/test_integration.py
+      - name: Run integration tests
+        run: PYTHONPATH=. uv run python tests/test_integration.py
