@@ -1,10 +1,10 @@
 # SourceTap
 
-Can't find the documentation you need? This MCP server lets your AI assistant instantly learn and search any library directly from its GitHub repository or documentation URL.
+SourceTap is an MVP of a Model Context Protocol (MCP server that lets your AI assistant learn and search any library directly from its GitHub repository or documentation URL.
 
 ## Features
 
-This project provides a Model Context Protocol (MCP) server with two powerful tools:
+This project provides two tools:
 
 1.  **`query_docs(url, query)`**: A RAG (Retrieval-Augmented Generation) tool.
     *   **Input**: Takes a URL to a ZIP archive (e.g., a GitHub repo archive) and a search query.
@@ -45,11 +45,31 @@ To use this tool with your AI assistant (e.g., Claude Desktop, Cline), add the f
 > **Note**: Replace `/absolute/path/to/sourcetap` with the actual path to this directory on your machine.
 > The `uv` command will automatically handle dependency installation and environment setup when the server starts.
 
-## Future Roadmap
+## Project Architecture
 
-While functional, this system can be significantly improved to become a production-grade context engine:
+### The Tech Stack
+- **MCP Framework:** FastMCP (Python)
+- **Web Scraping:** Jina Reader API (via httpx)
+- **Search Engine:** minsearch (TF-IDF/Keyword search)
+- **Caching:** SQLite with WAL mode
+- **Used MCP:** Context7
+- **AI Assistant:** Google Gemini 3 Flash + Antigravity IDE
 
-*   **Semantic Search**: Replace `minsearch` (keyword-based) with local embeddings (e.g., `all-MiniLM-L6-v2`) to allow conceptual matching (e.g., searching for "login" finds "authentication").
-*   **Smart Chunking**: Instead of indexing entire files, split documents by headers (`#`, `##`) to retrieve only the specific section relevant to the user's query.
-*   **Code Parsing**: Extend indexing beyond Markdown to include code files (`.py`, `.ts`). Parse function signatures and docstrings to allow technically accurate questions about implementation details.
-*   **Optimized Downloading**: Switch from downloading full ZIP archives to using the GitHub Tree API. This allows "sparse downloading"—fetching only the text files we need, saving massive amounts of bandwidth and memory.
+### Caching Strategy
+The project uses **SQLite** for persistent caching of downloaded ZIP files.
+- **WAL Mode:** Write-Ahead Logging enabled for better concurrent read/write performance.
+
+### Search Implementation
+Uses **minsearch** for in-memory document search.
+- **Text Fields:** Indexes both `content` and `filename` for comprehensive search.
+- **TF-IDF Scoring:** Ranks documents by term frequency-inverse document frequency.
+- **Top-K Retrieval:** Returns the 5 most relevant documents per query.
+- **Memory Efficient:** Index is rebuilt per query (no persistent index storage).
+
+### Limitations & Possible Improvements
+- **Keyword-Only Search:** Currently uses TF-IDF. Semantic search with embeddings (e.g., `all-MiniLM-L6-v2`) would enable conceptual matching.
+- **Full-File Retrieval:** Returns entire files. Smart chunking by headers would improve precision.
+- **Markdown-Only:** Only indexes `.md` and `.mdx` files. Code parsing (`.py`, `.ts`) would enable technical implementation queries.
+- **ZIP Archives:** Downloads full repositories. GitHub Tree API would enable sparse downloading of only needed files.
+- **No Persistent Index:** Index is rebuilt per query. Persistent indexing would improve performance for repeated queries.
+- **Single-Threaded Cache:** SQLite cache is synchronous. Async cache operations would improve throughput.

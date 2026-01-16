@@ -18,3 +18,10 @@
     - You do NOT need to ask for permission.
     - If I mention a library (e.g., "Airflow", "Next.js"), automatically use `context7` to find the latest docs for it.
     - If you are unsure which version I am using, use `context7` to check the latest stable version.
+
+    # For md files
+    - Don't use convoluted language. e.g., 
+        - saving massive amounts of bandwidth -> saving bandwidth
+        - powerful tools -> tools
+    - No need to use analogies or metaphors unless asked to.
+    

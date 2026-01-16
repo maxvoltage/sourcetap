@@ -20,7 +20,7 @@ async def fetch_web_content(url: str) -> str:
 def get_cached_content(url: str) -> bytes:
     """Retrieve content from SQLite cache or download and save it."""
     import sqlite3
-    import requests
+    import httpx
     
     db_name = "cache.db"
     with sqlite3.connect(db_name) as conn:
@@ -37,10 +37,11 @@ def get_cached_content(url: str) -> bytes:
         if row:
             return row[0]
             
-        # Download if not found (using requests for sync capability)
-        response = requests.get(url)
-        response.raise_for_status()
-        content = response.content
+        # Download if not found (using httpx for consistency)
+        with httpx.Client(timeout=30.0) as client:
+            response = client.get(url)
+            response.raise_for_status()
+            content = response.content
         
         cursor.execute("INSERT INTO downloads (url, content) VALUES (?, ?)", (url, content))
         conn.commit()
